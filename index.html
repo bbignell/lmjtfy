@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Let me JIRA that for you...</title>
+  <style type="text/css">
+    html {font-family: sans-serif;}
+    h1 {text-align:center;color:#0073a6;width:60vw}
+    input {font-size:2em;color:#0073a6}
+    input[type="text"] {width:100%;box-sizing:border-box;padding:0.25em 0.5em}
+    .floater {margin:1.5em auto 0;width:60vw;clear:both;}
+    .button {-webkit-appearance: none;float:right;border:none;background-color:#0073a6;color:white;padding:.5em .75em}
+    .lefty {float:left;color:#666;width:30vw;clear:both}
+    .ads {padding-top:3em}
+    .bottom {position:fixed;bottom:0;color:#999;margin-top:4em;font-size:0.75em;width:100%;margin:0 0 1em;background-color:white}
+  </style>
+
+  <!-- Throbber from http://tobiasahlin.com/spinkit/ -->
+  <style type="text/css">
+    .spinner {
+      margin: 15px auto;
+      width: 165px;
+      height: 40px;
+      text-align: center;
+      font-size: 10px;
+      float: right;
+    }
+
+    .spinner > div {
+      background-color: #0073a6;
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+
+      -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+      animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    }
+
+    .spinner .rect2 {
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+
+    .spinner .rect3 {
+      -webkit-animation-delay: -1.0s;
+      animation-delay: -1.0s;
+    }
+
+    .spinner .rect4 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+
+    .spinner .rect5 {
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+
+    @-webkit-keyframes sk-stretchdelay {
+      0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+      20% { -webkit-transform: scaleY(1.0) }
+    }
+
+    @keyframes sk-stretchdelay {
+      0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+      }  20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="floater">Let me JIRA that for you...</h1>
+  <div class="floater">
+    <form id="lmjtfy" method="GET">
+      <input type="text" name="query" id="query"/>
+      <div class="floater">
+        <div class="lefty">
+          Do you need help finding that tricky ticket? Searching for a specific feature?
+          Let me help you search JIRA for the information need!
+        </div>
+        <input id="submit" type="submit" class="button" value="LMJTFY"/>
+        <div id="spinner" class="spinner" style="display:none">
+          <div class="rect1"></div>
+          <div class="rect2"></div>
+          <div class="rect3"></div>
+          <div class="rect4"></div>
+          <div class="rect5"></div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="floater ads">
+    
+  </div>
+
+  <div class="bottom">
+    <div class="floater">
+      This website is a simple search utility and does not contain, own, or provide authorized access to
+      any of the data presented. No guarantee is offered for the quality of the data. Users are responsible for
+      appropriate use of data. For entertainment purposes only.
+    </div>
+  </div>
+</body>
+
+<script type="text/javascript">
+  var SEARCH_FORMAT = '/issues/?jql=project%20in%20(__PROJECTS__)%20AND%20text%20~%20"__QUERY__"';
+  var JIRAS = new Map([
+    ['https://jira.portaltech.co.uk', 'COSINT,COSAS'],
+    ['https://costco.atlassian.net', 'SIP,SIPSUP']
+  ]);
+  function jiraThat(query) {
+    toggleVisibility('submit', 'spinner');
+
+    var delay = 1000;
+    document.getElementById('query').value = query;
+    JIRAS.forEach(function(value, key, map){
+      var search = SEARCH_FORMAT.replace('__PROJECTS__', value).replace('__QUERY__', query);
+      setTimeout(function(){openSearch(key + search, value, window);}, delay);
+      delay += 500;
+    });
+
+    setTimeout(function(){toggleVisibility('spinner', 'submit');}, delay + 500);
+  }
+
+  function openSearch(url, name, parent) {
+    var win = window.open(url, name);
+    parent.focus();
+  }
+
+  function toggleVisibility(hideMe, showMe) {
+    document.getElementById(hideMe).style.display = 'none';
+    document.getElementById(showMe).style.display = 'block';
+  }
+
+  function isValidSearch(query) {
+    return ('' + query).trim();
+  }
+
+  document.getElementById('lmjtfy').addEventListener('submit', function(ev){
+    if (!isValidSearch(document.getElementById('query').value)) {
+      ev.preventDefault();
+      return false;
+    }
+  });
+
+  if (window.location.search) {
+    var query = window.location.search.split('=')[1];
+    if (isValidSearch(query)) {
+      jiraThat(query);
+    }
+  }
+</script>
+
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-8722055387836846",
+    enable_page_level_ads: true
+  });
+</script>
+</html>
