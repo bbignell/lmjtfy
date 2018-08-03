@@ -2,16 +2,33 @@
 <html>
 <head>
   <title>Let me JIRA that for you...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: "ca-pub-8722055387836846",
+      enable_page_level_ads: true
+    });
+  </script>
+
   <style type="text/css">
     html {font-family: sans-serif;}
     h1 {text-align:center;color:#0073a6;width:60vw}
-    input {font-size:2em;color:#0073a6}
-    input[type="text"] {width:100%;box-sizing:border-box;padding:0.25em 0.5em}
-    .floater {margin:1.5em auto 0;width:60vw;clear:both;}
-    .button {-webkit-appearance: none;float:right;border:none;background-color:#0073a6;color:white;padding:.5em .75em}
+    input {font-size:2rem;color:#0073a6}
+    input[type="text"] {width:100%;box-sizing:border-box;padding:0.25rem 0.5rem}
+    .floater {margin:1.5rem auto 0;width:60vw;clear:both;}
+    .button {-webkit-appearance: none;float:right;border:none;background-color:#0073a6;color:white;padding:.5rem .75rem}
     .lefty {float:left;color:#666;width:30vw;clear:both}
-    .ads {padding-top:3em}
-    .bottom {position:fixed;bottom:0;color:#999;margin-top:4em;font-size:0.75em;width:100%;margin:0 0 1em;background-color:white}
+    .ads {padding-top:3rem}
+    .bottom {position:fixed;bottom:0;color:#999;margin-top:4rem;font-size:0.75rem;width:100%;margin:0 0 1rem;background-color:white}
+
+    @media screen and (max-width:768px) {
+      h1 {width:100%}
+      .floater {width:100%}
+      .lefty {width:50%}
+    }
+
   </style>
 
   <!-- Throbber from http://tobiasahlin.com/spinkit/ -->
@@ -74,14 +91,15 @@
 <body>
   <h1 class="floater">Let me JIRA that for you...</h1>
   <div class="floater">
-    <form id="lmjtfy" method="GET">
-      <input type="text" name="query" id="query"/>
+    <form id="lmjtfy">
+      <input type="text" name="query" id="query" tabindex="0" autofocus/>
       <div class="floater">
         <div class="lefty">
           Do you need help finding that tricky ticket? Searching for a specific feature?
-          Let me help you search JIRA for the information need!
+          Let me help you search JIRA for the information need!<br><br>
+          You may need to allow popups for this site in your browser settings.
         </div>
-        <input id="submit" type="submit" class="button" value="LMJTFY"/>
+        <input id="submit" type="button" class="button" value="LMJTFY" tabindex="0" disabled="disabled"/>
         <div id="spinner" class="spinner" style="display:none">
           <div class="rect1"></div>
           <div class="rect2"></div>
@@ -94,7 +112,7 @@
   </div>
 
   <div class="floater ads">
-    
+
   </div>
 
   <div class="bottom">
@@ -104,62 +122,94 @@
       appropriate use of data. For entertainment purposes only.
     </div>
   </div>
-</body>
 
-<script type="text/javascript">
-  var SEARCH_FORMAT = '/issues/?jql=project%20in%20(__PROJECTS__)%20AND%20text%20~%20"__QUERY__"';
-  var JIRAS = new Map([
-    ['https://jira.portaltech.co.uk', 'COSINT,COSAS'],
-    ['https://costco.atlassian.net', 'SIP,SIPSUP']
-  ]);
-  function jiraThat(query) {
-    toggleVisibility('submit', 'spinner');
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
 
-    var delay = 1000;
-    document.getElementById('query').value = query;
-    JIRAS.forEach(function(value, key, map){
-      var search = SEARCH_FORMAT.replace('__PROJECTS__', value).replace('__QUERY__', query);
-      setTimeout(function(){openSearch(key + search, value, window);}, delay);
-      delay += 500;
+  <script>
+    var SEARCH_FORMAT = '__HOST__/issues/?jql=project%20in%20(__PROJECTS__)%20AND%20text%20~%20"__QUERY__"';
+    var JIRAS = new Map([
+      ['https://costco.atlassian.net', 'SIP,SIPSUP'],
+      ['https://jira.portaltech.co.uk', 'COSINT,COSAS']
+    ]);
+    var ELEMENTS = {
+      queryInput: $('#query'),
+      searchButton: $('#submit'),
+      searchForm: $('#lmjtfy'),
+      spinner: $('#spinner')
+    };
+
+    $(document).ready(function(){
+      function jiraThat(query) {
+        toggleVisibility(ELEMENTS.searchButton, ELEMENTS.spinner);
+
+        var delay = 500;
+        var incr = 500;
+
+        JIRAS.forEach(function(value, key, map){
+          var search = SEARCH_FORMAT.replace('__HOST__', key).replace('__PROJECTS__', value).replace('__QUERY__', query);
+          setTimeout(function(){window.open(search, value);}, delay);
+          delay += incr;
+        });
+
+        setTimeout(function(){toggleVisibility(ELEMENTS.spinner, ELEMENTS.searchButton);}, delay + incr);
+      }
+
+      function toggleVisibility(hideMe, showMe) {
+        hideMe.hide();
+        showMe.show();
+      }
+
+      function isValidSearch(query) {
+        return ('' + query).trim();
+      }
+
+      ELEMENTS.searchForm.on('submit', function(ev){
+          ev.preventDefault();
+          return false;
+      });
+
+      function clickButton(ev) {
+        var query = ELEMENTS.queryInput.val();
+        if (isValidSearch(query)) {
+          jiraThat(query);
+        } else {
+          ELEMENTS.queryInput.focus().css({'background-color':'#ffaaaa'}).animate({'background-color':'white'});
+        }
+      }
+
+      ELEMENTS.searchButton.mouseup(clickButton);
+      ELEMENTS.searchButton.on('keypress', clickButton);
+      ELEMENTS.queryInput.on('keypress', function(ev){
+        if (ev.key === 'Enter') {
+          ELEMENTS.searchButton.trigger('keypress');
+        }
+      });
+
+      ELEMENTS.searchButton.removeAttr('disabled');
+
+      /* URL param extractor from https://davidwalsh.name/query-string-javascript */
+      function getUrlParameter(name) {
+          name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+          var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+          var results = regex.exec(location.search);
+          return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      };
+
+      if (window.location.search) {
+        var query = getUrlParameter('query');
+        if (isValidSearch(query)) {
+          ELEMENTS.queryInput.val(query);
+          jiraThat(query);
+        }
+      }
     });
-
-    setTimeout(function(){toggleVisibility('spinner', 'submit');}, delay + 500);
-  }
-
-  function openSearch(url, name, parent) {
-    var win = window.open(url, name);
-    parent.focus();
-  }
-
-  function toggleVisibility(hideMe, showMe) {
-    document.getElementById(hideMe).style.display = 'none';
-    document.getElementById(showMe).style.display = 'block';
-  }
-
-  function isValidSearch(query) {
-    return ('' + query).trim();
-  }
-
-  document.getElementById('lmjtfy').addEventListener('submit', function(ev){
-    if (!isValidSearch(document.getElementById('query').value)) {
-      ev.preventDefault();
-      return false;
-    }
-  });
-
-  if (window.location.search) {
-    var query = window.location.search.split('=')[1];
-    if (isValidSearch(query)) {
-      jiraThat(query);
-    }
-  }
-</script>
-
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<script>
-  (adsbygoogle = window.adsbygoogle || []).push({
-    google_ad_client: "ca-pub-8722055387836846",
-    enable_page_level_ads: true
-  });
-</script>
+  </script>
+</body>
 </html>
