@@ -20,6 +20,18 @@
   <h1 class="floater">Let me JIRA that for you...</h1>
   <div class="floater">
     <form id="lmjtfy">
+      <div class="container" style="display:none" id="instructions">
+        <div>
+          You must provide the following URL parameters to this page:
+          <ul>
+            <li>jira = The URL of your JIRA server, without the trailing slash<br>&nbsp;e.g. jira=http://jira.domain.com
+            <li>projects = A comma-separated list of project names<br>&nbsp;e.g. projects=BOB,TECH
+          </ul>
+        </div>
+      </div>
+      <div class="container" style="display:none" id="searchDetails">
+        <p>Searching in project(s) [__PROJECTS__] at __HOST__.</p>
+      </div>
       <input type="text" name="query" id="query" tabindex="0" autofocus/>
       <div class="container">
         <div class="lefty">
@@ -35,11 +47,6 @@
             <div class="rect4"></div>
             <div class="rect5"></div>
           </div>
-        </div>
-      </div>
-      <div class="container">
-        <div>
-          Would you like to use this tool to search your own JIRA projects? Visit the <a href="diy.html">DIY page</a>.
         </div>
       </div>
     </form>
@@ -69,19 +76,20 @@
 
   <script src="main.js"></script>
   <script>
-    JIRAS.set('https://costco.atlassian.net', 'SIP,SIPSUP');
-    JIRAS.set('https://jira.portaltech.co.uk', 'COSINT,COSAS');
+    $.extend(ELEMENTS, {instructions: $('#instructions'), searchDetails: $('#searchDetails')});
 
+    var jira = getUrlParameter('jira');
+    var projects = getUrlParameter('projects');
 
-    $(document).ready(function(){
-      if (window.location.search) {
-        var query = getUrlParameter('query');
-        if (isValidSearch(query)) {
-          ELEMENTS.queryInput.val(query);
-          jiraThat(query);
-        }
-      }
-    });
+    if (jira.trim() === '' || projects.trim() === '') {
+      ELEMENTS.instructions.show();
+      ELEMENTS.searchButton.attr('disabled', 'disabled');
+    } else {
+      var text = ELEMENTS.searchDetails.html();
+      console.log(text);
+      ELEMENTS.searchDetails.html(text.replace('__PROJECTS__', projects).replace('__HOST__', jira)).show();
+      JIRAS.set(jira, projects);
+    }
   </script>
 </body>
 </html>
